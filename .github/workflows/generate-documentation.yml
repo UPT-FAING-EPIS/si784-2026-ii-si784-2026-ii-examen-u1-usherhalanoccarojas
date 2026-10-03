@@ -1,0 +1,65 @@
+name: Generate Documentation & Diagrams
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'backend/src/**'
+      - 'frontend/src/**'
+      - 'docs/**'
+      - 'scripts/**'
+      - '.github/workflows/*documentation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  documentation:
+    name: Generate Data Dictionary & Mermaid Diagrams
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Execute Documentation Generator
+        run: |
+          python scripts/generate_docs.py
+
+      - name: Verify Generated Documentation Artifacts
+        run: |
+          echo "Verifying generated files in docs/:"
+          ls -la docs/
+          test -f docs/data-dictionary.md
+          test -f docs/ER-diagram.mermaid
+          test -f docs/class-diagram.mermaid
+          test -f docs/components-diagram.mermaid
+          test -f docs/deployment-diagram.mermaid
+          test -f docs/ARCHITECTURE.md
+          echo "All required documentation artifacts successfully validated!"
+
+      - name: Commit and Push if Changed
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/
+          if git diff --staged --quiet; then
+            echo "No documentation changes detected."
+          else
+            git commit -m "docs: auto-generate data dictionary and Mermaid architecture diagrams [skip ci]"
+            git push origin main || echo "Push skipped or not needed"
+          fi
+
+      - name: Upload Documentation Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: architecture-documentation-pack
+          path: docs/

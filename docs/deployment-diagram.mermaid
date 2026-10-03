@@ -1,0 +1,33 @@
+graph TD
+    subgraph Users ["Usuarios y Operadores"]
+        Browser["Navegador Web / Dispositivo Móvil"]
+    end
+
+    subgraph CDN_Edge ["Capa de Distribución y Frontend"]
+        CloudFront["CDN / S3 Static Web Hosting (Nginx)"]
+        Browser -- "HTTPS (Puerto 443 / 80)" --> CloudFront
+    end
+
+    subgraph CloudVPC ["VPC en la Nube (AWS / Azure)"]
+        subgraph PublicSubnet ["Subred Pública"]
+            ALB["Application Load Balancer / App Runner Gateway"]
+            CloudFront -- "API Requests (/devices, /movements)" --> ALB
+        end
+
+        subgraph PrivateSubnetApp ["Subred Privada - Aplicación"]
+            BackendContainer["Contenedor Docker: ASP.NET Core 8 API\n(Puerto 8080)"]
+            ALB --> BackendContainer
+        end
+
+        subgraph PrivateSubnetDB ["Subred Privada - Base de Datos"]
+            RDS["Amazon RDS PostgreSQL 16\n(Puerto 5432)"]
+            BackendContainer -- "Conexión TCP / EF Core" --> RDS
+        end
+    end
+
+    subgraph DevOps ["Automatizaciones CI/CD (GitHub Actions)"]
+        GH_Actions["GitHub Actions Workflows"]
+        GH_Actions -- "Terraform" --> CloudVPC
+        GH_Actions -- "Docker Push" --> BackendContainer
+        GH_Actions -- "Static Deploy" --> CloudFront
+    end

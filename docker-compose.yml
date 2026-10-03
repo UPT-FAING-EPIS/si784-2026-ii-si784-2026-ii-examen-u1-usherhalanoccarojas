@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  database:
+    image: postgres:16-alpine
+    container_name: cell_inventory_db
+    restart: always
+    environment:
+      POSTGRES_DB: device_inventory
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d device_inventory"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: cell_inventory_api
+    restart: always
+    depends_on:
+      database:
+        condition: service_healthy
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_HTTP_PORTS=8080
+      - DatabaseProvider=PostgreSql
+      - ConnectionStrings__PostgresConnection=Host=database;Port=5432;Database=device_inventory;Username=postgres;Password=postgrespassword
+    ports:
+      - "5000:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: cell_inventory_web
+    restart: always
+    depends_on:
+      - backend
+    ports:
+      - "3000:80"
+
+volumes:
+  pgdata:

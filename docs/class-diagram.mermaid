@@ -1,0 +1,107 @@
+classDiagram
+    class Device {
+        +int Id
+        +string Brand
+        +string Model
+        +string Imei
+        +string SerialNumber
+        +DeviceStatus Status
+        +string Location
+        +DateTime EntryDate
+        +string Notes
+        +decimal PurchasePrice
+        +DateTime CreatedAt
+        +DateTime UpdatedAt
+        +ICollection~Movement~ Movements
+    }
+
+    class Movement {
+        +int Id
+        +int DeviceId
+        +Device Device
+        +MovementType MovementType
+        +string OriginLocation
+        +string DestinationLocation
+        +string Reason
+        +string ResponsiblePerson
+        +DateTime MovementDate
+        +DateTime CreatedAt
+    }
+
+    class DeviceStatus {
+        <<enumeration>>
+        Disponible = 1
+        EnUso = 2
+        EnReparacion = 3
+        DeBaja = 4
+    }
+
+    class MovementType {
+        <<enumeration>>
+        Ingreso = 1
+        Salida = 2
+        Traslado = 3
+        Baja = 4
+    }
+
+    class IDeviceRepository {
+        <<interface>>
+        +GetAllAsync()
+        +GetByIdAsync()
+        +GetByImeiAsync()
+        +AddAsync()
+        +UpdateAsync()
+        +DeleteAsync()
+        +ExistsImeiAsync()
+        +CountAsync()
+    }
+
+    class IMovementRepository {
+        <<interface>>
+        +GetAllAsync()
+        +GetByIdAsync()
+        +AddAsync()
+        +GetRecentAsync()
+        +CountAsync()
+    }
+
+    class IInventoryService {
+        <<interface>>
+        +GetDevicesAsync()
+        +GetDeviceByIdAsync()
+        +CreateDeviceAsync()
+        +UpdateDeviceAsync()
+        +DeleteDeviceAsync()
+        +GetMovementsAsync()
+        +CreateMovementAsync()
+        +GetStockReportAsync()
+        +GetSummaryAsync()
+    }
+
+    class InventoryService {
+        -IDeviceRepository _deviceRepository
+        -IMovementRepository _movementRepository
+        -ILogger _logger
+    }
+
+    class DevicesController {
+        -IInventoryService _inventoryService
+    }
+
+    class MovementsController {
+        -IInventoryService _inventoryService
+    }
+
+    class ReportsController {
+        -IInventoryService _inventoryService
+    }
+
+    Device "1" *-- "many" Movement : contains
+    Device --> DeviceStatus : has
+    Movement --> MovementType : has
+    InventoryService ..|> IInventoryService : implements
+    InventoryService --> IDeviceRepository : uses
+    InventoryService --> IMovementRepository : uses
+    DevicesController --> IInventoryService : uses
+    MovementsController --> IInventoryService : uses
+    ReportsController --> IInventoryService : uses

@@ -1,0 +1,29 @@
+erDiagram
+    DEVICES ||--o{ MOVEMENTS : "tiene historial"
+
+    DEVICES {
+        int Id PK "Auto-increment"
+        string Brand "NOT NULL (100)"
+        string Model "NOT NULL (100)"
+        string Imei UK "UNIQUE (15)"
+        string SerialNumber "NULL (100)"
+        int Status "Enum: Disponible, EnUso, EnReparacion, DeBaja"
+        string Location "NOT NULL (150)"
+        datetime EntryDate "NOT NULL"
+        string Notes "NULL (500)"
+        decimal PurchasePrice "NULL (18,2)"
+        datetime CreatedAt "NOT NULL"
+        datetime UpdatedAt "NULL"
+    }
+
+    MOVEMENTS {
+        int Id PK "Auto-increment"
+        int DeviceId FK "References DEVICES(Id)"
+        int MovementType "Enum: Ingreso, Salida, Traslado, Baja"
+        string OriginLocation "NULL (150)"
+        string DestinationLocation "NULL (150)"
+        string Reason "NOT NULL (300)"
+        string ResponsiblePerson "NOT NULL (150)"
+        datetime MovementDate "NOT NULL"
+        datetime CreatedAt "NOT NULL"
+    }

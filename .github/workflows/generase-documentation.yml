@@ -1,0 +1,11 @@
+name: Generate Documentation & Diagrams (Alias)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  call-generator:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger documentation generation
+        run: echo "Documentation generator alias active."

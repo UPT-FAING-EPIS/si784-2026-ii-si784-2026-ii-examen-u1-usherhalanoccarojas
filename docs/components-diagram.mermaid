@@ -1,0 +1,41 @@
+graph TD
+    subgraph Client ["Frontend (Cliente Web SPA)"]
+        UI["Interfaz de Usuario (React + Vite + TypeScript)"]
+        Components["Componentes (Dashboard, Devices, Movements, Reports, Panels)"]
+        APIClient["API Service / Offline Fallback"]
+        UI --> Components
+        Components --> APIClient
+    end
+
+    subgraph BackendGateway ["Capa de Exposición (ASP.NET Core Web API)"]
+        Controllers["Controladores RESTful"]
+        Swagger["OpenAPI / Swagger UI"]
+        Middleware["Exception Handling & CORS Middleware"]
+        Controllers --> Middleware
+    end
+
+    subgraph CoreDomain ["Capa de Lógica de Negocio"]
+        InventoryService["Servicio de Inventario (IInventoryService)"]
+        ImeiValidator["Validador Luhn IMEI"]
+        DTOs["Modelos DTO y Mapeos"]
+        InventoryService --> ImeiValidator
+        InventoryService --> DTOs
+    end
+
+    subgraph InfrastructureLayer ["Capa de Acceso a Datos (Infraestructura)"]
+        DeviceRepo["DeviceRepository (IDeviceRepository)"]
+        MovementRepo["MovementRepository (IMovementRepository)"]
+        DbContext["InventoryDbContext (Entity Framework Core)"]
+        DeviceRepo --> DbContext
+        MovementRepo --> DbContext
+    end
+
+    subgraph DataStorage ["Persistencia Relacional"]
+        DB[("PostgreSQL / SQLite")]
+        DbContext --> DB
+    end
+
+    APIClient -- "HTTP/JSON REST (/devices, /movements, /reports)" --> Controllers
+    Controllers --> InventoryService
+    InventoryService --> DeviceRepo
+    InventoryService --> MovementRepo

@@ -1,0 +1,93 @@
+name: Security Scanning (Snyk & Semgrep)
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  semgrep:
+    name: Semgrep SAST Code Scan
+    runs-on: ubuntu-latest
+    container:
+      image: semgrep/semgrep:latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Run Semgrep SAST Analysis
+        run: |
+          mkdir -p reports
+          semgrep scan --config=auto --sarif --output=reports/semgrep-report.sarif . || true
+          semgrep scan --config=auto --json --output=reports/semgrep-report.json . || true
+
+      - name: Upload Semgrep SARIF & JSON Reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: semgrep-security-reports
+          path: reports/
+
+  snyk:
+    name: Snyk Dependency & Container Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Frontend Dependencies
+        working-directory: ./frontend
+        run: npm ci
+
+      - name: Install Snyk CLI
+        uses: snyk/actions/setup@master
+
+      - name: Prepare Report Output Directory
+        run: mkdir -p reports
+
+      - name: Snyk Backend Scan
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: |
+          snyk test --file=backend/DeviceInventory.sln --json-file-output=reports/snyk-backend-report.json || true
+        continue-on-error: true
+
+      - name: Snyk Frontend Scan
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: |
+          snyk test --file=frontend/package.json --json-file-output=reports/snyk-frontend-report.json || true
+        continue-on-error: true
+
+      - name: Build Backend Container Image
+        run: docker build -t cell-inventory-api:security-scan ./backend
+
+      - name: Snyk Container Image Scan
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: |
+          snyk container test cell-inventory-api:security-scan --json-file-output=reports/snyk-container-report.json || true
+        continue-on-error: true
+
+      - name: Upload Snyk Security Reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: snyk-vulnerability-reports
+          path: reports/

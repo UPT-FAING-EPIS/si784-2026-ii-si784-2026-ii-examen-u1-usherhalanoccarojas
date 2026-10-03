@@ -1,0 +1,8 @@
+environment        = "prod"
+aws_region         = "us-east-1"
+project_name       = "cell-inventory"
+db_name            = "device_inventory"
+db_username        = "postgresadmin"
+db_password        = "SuperSecretPassword2026!"
+backend_image_uri  = "public.ecr.aws/upt/cell-inventory-backend:latest"
+frontend_image_uri = "public.ecr.aws/upt/cell-inventory-frontend:latest"
