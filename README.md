@@ -13,7 +13,7 @@ Sistema integral para registrar, gestionar y monitorear el inventario de disposi
 
 | Recurso | Enlace / URL |
 | :--- | :--- |
-| 🌐 **Aplicación Publicada** | [https://si784-2026-ii-examen-u1-usherhalanoccarojas.vercel.app](https://si784-2026-ii-examen-u1-usherhalanoccarojas.vercel.app) |
+| 🌐 **Aplicación Publicada** | [https://cell-inventory-usher.surge.sh](https://cell-inventory-usher.surge.sh) |
 | 📁 **Repositorio GitHub** | [https://github.com/UPT-FAING-EPIS/si784-2026-ii-si784-2026-ii-examen-u1-usherhalanoccarojas](https://github.com/UPT-FAING-EPIS/si784-2026-ii-si784-2026-ii-examen-u1-usherhalanoccarojas) |
 | 🛡️ **SonarQube / SonarCloud** | [https://sonarcloud.io/project/overview?id=UPT-FAING-EPIS_si784-2026-ii-si784-2026-ii-examen-u1-usherhalanoccarojas](https://sonarcloud.io/project/overview?id=UPT-FAING-EPIS_si784-2026-ii-si784-2026-ii-examen-u1-usherhalanoccarojas) |
 
