@@ -57,10 +57,12 @@ jobs:
       - name: Begin Sonar Analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_ORG: ${{ secrets.SONAR_ORGANIZATION || 'upt-faing-epis' }}
+          SONAR_PROJECT_KEY: ${{ secrets.SONAR_PROJECT_KEY || 'UPT-FAING-EPIS_si784-2026-ii-si784-2026-ii-examen-u1-usherhalanoccarojas' }}
         run: |
           dotnet-sonarscanner begin \
-            /k:"UPT-FAING-EPIS_si784-2026-ii-si784-2026-ii-examen-u1-usherhalanoccarojas" \
-            /o:"upt-faing-epis" \
+            /k:"$SONAR_PROJECT_KEY" \
+            /o:"$SONAR_ORG" \
             /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
             /d:sonar.host.url="https://sonarcloud.io" \
             /d:sonar.cs.opencover.reportsPaths="**/TestResults/**/coverage.opencover.xml" \
